@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShiftGrid</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loading-screen">
+    <img src="assets/shiftgrid-title.png" alt="ShiftGrid Title" id="title-image" />
+    <div id="loading-bar-container">
+      <div id="loading-bar"></div>
+    </div>
+    <button id="startBtn" style="display: none;">Start Game</button>
+  </div>
+
+  <!-- 👇 Combo Popup Element -->
+  <div id="combo-popup"></div>
+
+    <!-- Challenge Popup (floating above game area) -->
+  <div id="challenge-popup-container">
+    <div class="challenge-popup" id="challengePopup" style="display: none;">
+      Challenge incoming!
+      <div class="challenge-timer-bar" id="challengeTimerBar"></div>
+    </div>
+  </div>
+
+
+  <div class="container" style="display:none;">
+    <div class="panel left">
+      <h2>Score: <span id="score">0</span></h2>
+      <h2>Level: <span id="level">1</span></h2>
+
+<!-- XP Bar -->
+<div id="xp-bar-container">
+  <div id="xp-bar-fill"></div>
+</div>
+<h4 id="xp-label">XP: 0 / 100</h4>
+      
+      <!-- Hold Box -->
+      <h3>Hold:</h3>
+      <canvas id="hold" width="120" height="120"></canvas>
+      
+      <!-- Next Box -->
+      <h3>Next:</h3>
+      <canvas id="preview" width="120" height="120"></canvas>
+      
+      <!-- Volume Controls -->
+      <div class="volume-controls">
+        <h3>Volume</h3>
+        <div class="volume-group">
+          <label for="musicVolume">Music:</label>
+          <input type="range" id="musicVolume" min="0" max="100" value="50">
+        </div>
+        <div class="volume-group">
+          <label for="sfxVolume">SFX:</label>
+          <input type="range" id="sfxVolume" min="0" max="100" value="50">
+        </div>
+      </div>
+    </div>
+
+<div class="panel center">
+
+  <div id="challenge-popup-container"></div>
+
+<div id="game-area">
+  <canvas id="game" width="300" height="600"></canvas>
+
+  <!--Level Up Popup inserted here -->
+  <div class="levelup-popup" id="levelupPopup" style="display: none;">
+    Level Up!
+  </div>
+</div>
+
+  <div id="gameOver">Game Over</div>
+  <div class="controls">
+    <button id="restartBtn">Restart</button>
+    <button id="themeToggleBtn">Switch Theme</button>
+  </div>
+</div>
+
+
+    <div class="panel right">
+      <div class="panel instructions-panel">
+        <h3>Instructions</h3> 
+        <ul>
+          <li>🧱 Line 'em up, clear 'em out—score goes boom!</li>
+          <li>⚡ Every 10 lines? Speed cranks up—don't blink!</li>
+          <li>🔄 2 shifts per drop—make 'em count before it stops!</li>
+          <li>🔥 Combo hard, score wild—powers get styled!</li>
+          <li>💣 Got the bomb? Point and click—then watch it stick!</li>
+          <li>🎭 Odd levels bring the glitch. Only pros survive.</li>
+        </ul>
+      </div>
+      
+      <div class="panel controls-panel">
+        <h3>Controls</h3>
+        <ul>
+          <li><strong>← Left</strong> — Move Left</li>
+          <li><strong>→ Right</strong> — Move Right</li>
+          <li><strong>↓ Down</strong> — Move Down</li>
+          <li><strong>↑ Up</strong> — Rotate</li>
+          <li><strong>Space</strong> — Hard Drop</li>
+          <li><strong>C</strong> — Hold Piece</li>
+          <li><strong>Shift</strong> — Switch Shape</li>
+          <li><strong>Number Keys</strong> — Power-ups</li>
+          <li><strong>Left Click</strong> — Bomb the block parts to blast</li>
+          <li><strong>P</strong> — Pause/Resume</li>
+        </ul>
+        <p class="note">Face the fall, conquer it all!</p>
+
+        <!-- 🔹 ADDED: Riddle Tip Button -->
+        <button id="riddleBtn" style="margin-top: 10px;">🧠 Combo Tip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 ADDED: Riddle Modal Popup -->
+  <div id="riddleModal" style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center;">
+    <div style="background: white; color: black; padding: 20px 30px; border-radius: 12px; max-width: 500px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); position: relative;">
+      <h2 style="margin-bottom: 12px;">🧩 Tetris Riddle</h2>
+      <p id="riddleText" style="font-style: italic;">
+        I rise like a wall, tall and tight,<br>
+        But leave two paths off to the right.<br>
+        When pieces fall in narrow flight,<br>
+        The lines will vanish out of sight.<br><br>
+        What am I planning to do?
+      </p>
+      <p id="riddleAnswer" style="display:none; margin-top: 20px; font-weight: bold; color: #d81b60;">
+        Tip: Stack your blocks high in the middle, and leave two vertical columns empty on one side. That's the secret to triggering combo chains!
+      </p>
+      <button onclick="revealAnswer()" style="margin-top: 20px;">Reveal Answer</button><br />
+      <button onclick="closeRiddle()" style="margin-top: 10px; background: #ccc; color: black;">Close</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+  <!-- 🔹 ADDED: Riddle Modal JS -->
+  <script>
+    const riddleBtn = document.getElementById("riddleBtn");
+    const riddleModal = document.getElementById("riddleModal");
+    const riddleAnswer = document.getElementById("riddleAnswer");
+
+    riddleBtn.addEventListener("click", () => {
+      riddleModal.style.display = "flex";
+      riddleAnswer.style.display = "none"; // Reset visibility
+    });
+
+    function revealAnswer() {
+      riddleAnswer.style.display = "block";
+    }
+
+    function closeRiddle() {
+      riddleModal.style.display = "none";
+    } 
+  </script>
+
+</body>
+</html>
